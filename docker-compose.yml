@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  icecast:
+    image: moul/icecast
+    ports:
+      - "8000:8000"
+    environment:
+      - ICECAST_SOURCE_PASSWORD=hackme
+      - ICECAST_ADMIN_PASSWORD=hackme
+  liquidsoap:
+    image: savonet/liquidsoap:v2.2.0
+    volumes:
+      - ./streamer/radio.liq:/radio.liq
+      - ./streamer/music:/music
+    command: liquidsoap /radio.liq
+    depends_on:
+      - icecast
+  backend:
+    build: ./backend
+    ports:
+      - "5000:8000"
+    volumes:
+      - ./streamer/music:/app/music
+    depends_on:
+      - liquidsoap
